@@ -2,41 +2,52 @@ import requests
 import pandas as pd
 import json
 
-# 1. Data ကို ယူမယ် (Fetch Data)
-url = "https://www.vpngate.net/api/iphone/"
-response = requests.get(url)
-data = response.text
+def fetch_and_save_vpngate():
+    print("Fetching VPNGate data...")
+    url = "https://www.vpngate.net/api/iphone/"
+    
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status() # HTTP Error ရှိရင် ဖမ်းမယ်
+        
+        # VPNGate API က CSV format နဲ့ ပြန်ပေးတာမို့ စာကြောင်းတွေကို ရှင်းမယ်
+        raw_text = response.text
+        lines = raw_text.split('\n')
+        
+        # '#' နဲ့ စတဲ့ မလိုအပ်တဲ့ စာကြောင်းတွေ နဲ့ အလွတ်စာကြောင်းတွေ ဖျက်မယ်
+        clean_lines = [line for line in lines if not line.startswith('#') and line.strip()]
+        csv_data = "\n".join(clean_lines)
+        
+        # CSV ကို Pandas နဲ့ ဖတ်မယ်
+        df = pd.read_csv(pd.io.common.StringIO(csv_data))
+        
+        # --- အဓိက Error ဖြေရှင်းချက် ---
+        # 'Speed' နဲ့ 'Ping' ကော်လံတွေကို နံပါတ် (float) အဖြစ် ပြောင်းမယ်။
+        # မပြောင်းနိုင်တဲ့ စာသားတွေ (ဥပမာ - Japan, N/A, -) ပါလာရင်
+        # errors='coerce' က အဲ့ဒါတွေကို NaN (Not a Number) အဖြစ် ပြောင်းပေးမယ်။
+        if 'Speed' in df.columns:
+            df['Speed'] = pd.to_numeric(df['Speed'], errors='coerce')
+        if 'Ping' in df.columns:
+            df['Ping'] = pd.to_numeric(df['Ping'], errors='coerce')
+        
+        # NaN ဖြစ်နေတဲ့ (တန်ဖိုးမရှိတဲ့) အတန်းတွေကို ဖျက်ပစ်မယ်
+        df = df.dropna(subset=['Speed', 'Ping'])
+        
+        # '#' သင်္ကေတတွေ ဒါမှမဟုတ် မလိုအပ်တဲ့ အတန်းတွေ ကျန်နေရင် ထပ်ရှင်းမယ်
+        df = df[df['Country'].apply(lambda x: isinstance(x, str) and not x.startswith('*'))]
+        
+        # နောက်ဆုံး Data ကို JSON ဖိုင်ထဲ သိမ်းမယ်
+        final_data = df.to_dict(orient='records')
+        
+        with open('servers.json', 'w', encoding='utf-8') as f:
+            json.dump(final_data, f, indent=4, ensure_ascii=False)
+            
+        print(f"✅ အောင်မြင်ပါပြီ! VPN ဆာဗာ {len(final_data)} ခုကို 'servers.json' ထဲ သိမ်းပြီးပါပြီ။")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"❌ အင်တာနက် ချိတ်ဆက်မှု အမှား: {e}")
+    except Exception as e:
+        print(f"❌ အခြားအမှားတစ်ခု ဖြစ်ပွားသွားပါသည်: {e}")
 
-# 2. Data ကို ရှင်းလင်းမယ် (Parse Data)
-# VPNGate API က OpenVPN ရဲ့ ပုံစံနဲ့ လာတာမို့ ပထမဆုံး မလိုအပ်တဲ့ စာကြောင်းတွေကို ဖြတ်ထုတ်ရပါမယ်
-lines = data.split('\n')
-filtered_lines = [line for line in lines if not line.startswith('#') and line.strip()]
-csv_data = "\n".join(filtered_lines)
-
-# 3. CSV အနေနဲ့ ဖတ်မယ် (Read as CSV)
-try:
-    # header=0 ဆိုတာက ပထမဆုံး row ကို header အနေနဲ့ ယူမယ်လို့ ဆိုလိုတာပါ
-    df = pd.read_csv(pd.io.common.StringIO(csv_data))
-except Exception as e:
-    print(f"Error reading CSV: {e}")
-    df = pd.DataFrame()
-
-# 4. မလိုအပ်တဲ့ အမှားတွေကို ပြင်မယ် (Fixing the error - အဓိကအချက်)
-if not df.empty:
-    # 'Speed' နဲ့ 'Ping' column တွေကို float ပြောင်းတဲ့အခါ အက္ခရာ (ဥပမာ 'Japan') ပါလာရင် 
-    # error တက်တာမို့ 'coerce' ကို သုံးပြီး အမှားဖြစ်တဲ့ data တွေကို NaN (Not a Number) ဖြစ်အောင်လုပ်မယ်
-    df['Speed'] = pd.to_numeric(df['Speed'], errors='coerce')
-    df['Ping'] = pd.to_numeric(df['Ping'], errors='coerce')
-
-    # NaN ဖြစ်နေတဲ့ row တွေကို ဖျက်ပစ်မယ် (ဒါမှ နောက်ပိုင်း float ပြောင်းတဲ့အခါ အမှားမတက်တော့ဘူး)
-    df = df.dropna(subset=['Speed', 'Ping'])
-
-    # (Optional) နောက်ထပ် မလိုအပ်တဲ့ အမှားမျိုး မဖြစ်အောင် အခြား Columns တွေကိုလည်း ရှင်းလင်းနိုင်ပါတယ်
-    # ဥပမာ - df = df.dropna() ဆိုပြီး NaN ရှိသမျှ row အားလုံး ဖျက်လို့ရပါတယ်။
-
-# 5. servers.json ဖိုင်ထဲ သိမ်းမယ် (Save to servers.json)
-output_data = df.to_dict(orient='records')
-with open('servers.json', 'w', encoding='utf-8') as f:
-    json.dump(output_data, f, indent=4)
-
-print(f"Successfully saved {len(output_data)} servers to servers.json")
+if __name__ == "__main__":
+    fetch_and_save_vpngate()
