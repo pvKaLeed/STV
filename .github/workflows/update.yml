@@ -1,9 +1,9 @@
-name: Update VPNBook Servers
+name: Update VPNGate Servers
 
 on:
   schedule:
-    # ၁ နာရီတစ်ကြိမ် ပုံမှန် Run မည်
-    - cron: '0 * * * *'
+    # ၃ နာရီတစ်ကြိမ် ပုံမှန် Run မည် (VPNGate က server အသစ်တွေ မကြာခဏထွက်လို့)
+    - cron: '0 */3 * * *'
   workflow_dispatch: # Manual run ရအောင်လုပ်ပေးထားသည်
 
 permissions:
@@ -22,12 +22,16 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install dependencies
+      run: |
+        pip install requests
+
     - name: Run Fetch Script
-      run: python fetch_vpn.py
+      run: python fetch_vpngate.py
 
     - name: Commit and Push if updated
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add servers.json
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update top 5 VPNBook servers" && git push)
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto update top VPNGate servers" && git push)
