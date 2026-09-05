@@ -38,17 +38,17 @@ def get_vpngate_servers():
             continue
             
         try:
-            # Format: 
-            # 0: #, 1: HostName, 2: IP, 3: Score, 4: Ping, 5: Speed, 
-            # 6: CountryLong, 7: CountryShort, 8: NumVpnSessions, 
-            # 9: OpenVPN_ConfigData_Base64, 10: ...
-            
             host = parts[1].strip()
             country = parts[6].strip()
             country_code = parts[7].strip()
-            ping = float(parts[4].strip())  # in ms
-            speed = float(parts[5].strip())  # in Mbps
+            ping = float(parts[4].strip())
+            speed = float(parts[5].strip())
             config_base64 = parts[9].strip()
+            
+            # ✅ Check if config_base64 is empty
+            if not config_base64:
+                print(f"⚠️ Skipping {host}: Empty config")
+                continue
             
             # Decode OpenVPN config
             config_content = base64.b64decode(config_base64).decode('utf-8')
@@ -74,7 +74,7 @@ def main():
     
     if not servers:
         print("❌ No servers found!")
-        # Try fallback URL
+        # ✅ Try a different fallback URL
         print("🔄 Trying fallback URL...")
         html = fetch_webpage("https://www.vpngate.net/api/iphone/")
         if html:
