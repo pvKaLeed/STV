@@ -1,25 +1,16 @@
 {
-  "updated_at": "2026-09-05 04:21:23 UTC",
+  "updated_at": "2026-09-05 08:51:23 UTC",
   "username": "vpnbook",
   "password": "ytw2awn",
   "total_active_found": 9,
   "servers": [
-    {
-      "file_name": "us178.vpnbook.com_tcp443.ovpn",
-      "host": "us178.vpnbook.com",
-      "port": 443,
-      "proto": "tcp",
-      "country": "US",
-      "latency_ms": 32.34,
-      "config_content": "client\ndev tun\nproto tcp\nremote us178.vpnbook.com 443\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
-    },
     {
       "file_name": "us16.vpnbook.com_tcp443.ovpn",
       "host": "us16.vpnbook.com",
       "port": 443,
       "proto": "tcp",
       "country": "US",
-      "latency_ms": 81.32,
+      "latency_ms": 22.65,
       "config_content": "client\ndev tun\nproto tcp\nremote us16.vpnbook.com 443\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
     },
     {
@@ -28,7 +19,7 @@
       "port": 443,
       "proto": "tcp",
       "country": "CA",
-      "latency_ms": 86.85,
+      "latency_ms": 55.97,
       "config_content": "client\ndev tun\nproto tcp\nremote ca149.vpnbook.com 443\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
     },
     {
@@ -37,8 +28,17 @@
       "port": 443,
       "proto": "tcp",
       "country": "CA",
-      "latency_ms": 135.97,
+      "latency_ms": 64.05,
       "config_content": "client\ndev tun\nproto tcp\nremote ca196.vpnbook.com 443\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
+    },
+    {
+      "file_name": "us178.vpnbook.com_tcp443.ovpn",
+      "host": "us178.vpnbook.com",
+      "port": 443,
+      "proto": "tcp",
+      "country": "US",
+      "latency_ms": 78.65,
+      "config_content": "client\ndev tun\nproto tcp\nremote us178.vpnbook.com 443\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
     },
     {
       "file_name": "fr200.vpnbook.com_tcp80.ovpn",
@@ -46,7 +46,7 @@
       "port": 80,
       "proto": "tcp",
       "country": "FR",
-      "latency_ms": 142.4,
+      "latency_ms": 87.36,
       "config_content": "client\ndev tun\nproto tcp\nremote fr200.vpnbook.com 80\nresolv-retry infinite\nnobind\npersist-key\npersist-tun\ncipher AES-256-CBC\nauth SHA256\nverb 3\n<ca>\n-----BEGIN CERTIFICATE-----\nMIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB\njDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0\nc2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx\nBgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5\nMB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT\nMRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK\nExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp\nZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3\nDQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z\n-----END CERTIFICATE-----\n</ca>\n"
     }
   ]
