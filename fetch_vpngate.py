@@ -1,42 +1,29 @@
-import os
-import re
 import urllib.request
-import time
-import socket
 import json
 import base64
+import time
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-}
-
-def fetch_webpage(url):
+def fetch_vpngate_data():
+    url = "https://www.vpngate.net/api/iphone/"
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    
     try:
-        req = urllib.request.Request(url, headers=HEADERS)
         with urllib.request.urlopen(req, timeout=15) as response:
-            return response.read().decode('utf-8', errors='ignore')
+            data = response.read().decode('utf-8')
+            return data
     except Exception as e:
-        print(f"Error fetching {url}: {e}")
-        return ""
+        print(f"Error: {e}")
+        return None
 
-def get_vpngate_servers():
-    """Fetch VPNGate public server list"""
-    print("🌐 Fetching VPNGate servers...")
-    html = fetch_webpage("https://www.vpngate.net/api/iphone/")
-    if not html:
-        print("❌ Failed to fetch server list")
-        return []
-    
+def parse_vpngate_csv(data):
     servers = []
-    lines = html.strip().split('\n')
-    print(f"📊 Total lines: {len(lines)}")
+    lines = data.strip().split('\n')
     
-    # Skip header line
-    for idx, line in enumerate(lines[1:]):
+    for line in lines[1:]:  # Skip header
         parts = line.split(',')
         if len(parts) < 10:
             continue
-            
+        
         try:
             host = parts[1].strip()
             country = parts[6].strip()
@@ -45,13 +32,10 @@ def get_vpngate_servers():
             speed = float(parts[5].strip())
             config_base64 = parts[9].strip()
             
-            # ✅ Check if config_base64 is empty
             if not config_base64:
-                print(f"⚠️ Skipping {host}: Empty config")
                 continue
-            
-            # Decode OpenVPN config
-            config_content = base64.b64decode(config_base64).decode('utf-8')
+                
+            config = base64.b64decode(config_base64).decode('utf-8')
             
             servers.append({
                 "host": host,
@@ -59,42 +43,31 @@ def get_vpngate_servers():
                 "country_code": country_code,
                 "ping_ms": ping,
                 "speed_mbps": speed,
-                "config_content": config_content
+                "config_content": config
             })
         except Exception as e:
-            print(f"⚠️ Error parsing line {idx}: {e}")
+            print(f"Parse error: {e}")
             continue
     
-    print(f"✅ Found {len(servers)} servers")
     return servers
 
 def main():
-    print("🚀 Starting VPNGate server update...")
-    servers = get_vpngate_servers()
+    print("Fetching VPNGate data...")
+    data = fetch_vpngate_data()
     
-    if not servers:
-        print("❌ No servers found!")
-        # ✅ Try a different fallback URL
-        print("🔄 Trying fallback URL...")
-        html = fetch_webpage("https://www.vpngate.net/api/iphone/")
-        if html:
-            servers = get_vpngate_servers()
-    
-    if not servers:
-        print("❌ Still no servers, using cached data")
+    if not data:
+        print("Failed to fetch data")
         return
     
-    # Filter: only servers with good ping (< 200ms) and good speed (> 1 Mbps)
-    filtered = [s for s in servers if s["ping_ms"] < 200 and s["speed_mbps"] > 1]
-    print(f"📊 Filtered: {len(filtered)} servers (ping < 200ms, speed > 1 Mbps)")
+    servers = parse_vpngate_csv(data)
+    print(f"Found {len(servers)} servers")
     
-    # Sort by ping (lowest first) then speed (highest first)
-    filtered.sort(key=lambda x: (x["ping_ms"], -x["speed_mbps"]))
+    # Filter and sort
+    filtered = [s for s in servers if s["ping_ms"] < 200 and s["speed_mbps"] > 1]
+    filtered.sort(key=lambda x: x["ping_ms"])
     top_10 = filtered[:10]
     
-    print(f"📝 Selected top {len(top_10)} servers")
-    
-    output_data = {
+    output = {
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
         "username": "vpn",
         "password": "vpn",
@@ -111,10 +84,10 @@ def main():
         } for s in top_10]
     }
     
-    with open("servers.json", "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2)
+    with open("servers.json", "w") as f:
+        json.dump(output, f, indent=2)
     
-    print(f"✅ Successfully updated servers.json with {len(top_10)} VPNGate servers!")
+    print(f"Updated servers.json with {len(top_10)} servers")
 
 if __name__ == "__main__":
     main()
