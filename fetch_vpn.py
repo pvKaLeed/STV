@@ -4,24 +4,11 @@ import urllib.request
 import time
 import socket
 import json
+import base64
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 }
-
-# VPNBook Active Servers List
-ACTIVE_HOSTS = [
-    {"host": "us16.vpnbook.com", "country": "US"},
-    {"host": "us178.vpnbook.com", "country": "US"},
-    {"host": "ca149.vpnbook.com", "country": "CA"},
-    {"host": "ca196.vpnbook.com", "country": "CA"},
-    {"host": "uk205.vpnbook.com", "country": "UK"},
-    {"host": "uk68.vpnbook.com", "country": "UK"},
-    {"host": "de20.vpnbook.com", "country": "DE"},
-    {"host": "de220.vpnbook.com", "country": "DE"},
-    {"host": "fr200.vpnbook.com", "country": "FR"},
-    {"host": "fr2311.vpnbook.com", "country": "FR"},
-]
 
 def fetch_webpage(url):
     try:
@@ -32,110 +19,78 @@ def fetch_webpage(url):
         print(f"Error fetching {url}: {e}")
         return ""
 
-def scrape_password():
-    """Scrape current dynamic password from VPNBook"""
-    html = fetch_webpage("https://www.vpnbook.com/freevpn/openvpn")
+def get_vpngate_servers():
+    """Fetch VPNGate public server list"""
+    html = fetch_webpage("https://www.vpngate.net/api/iphone/")
     if not html:
-        html = fetch_webpage("https://www.vpnbook.com/freevpn")
-        
-    match = re.search(r'Password:\s*([a-zA-Z0-9]+)', html, re.IGNORECASE)
-    if match:
-        password = match.group(1).strip()
-        print(f"Found dynamic password: {password}")
-        return password
+        return []
     
-    return "ytw2awn"  # Fallback password
-
-def test_latency(host, port=443, timeout=3.0):
-    """Test TCP latency to verify active server status"""
-    start = time.time()
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(timeout)
-        sock.connect((host, port))
-        sock.close()
-        latency = (time.time() - start) * 1000
-        return round(latency, 2)
-    except Exception:
-        return None
-
-def generate_ovpn_config(host, port=443, proto="tcp"):
-    """Generate valid OpenVPN profile string"""
-    return f"""client
-dev tun
-proto {proto}
-remote {host} {port}
-resolv-retry infinite
-nobind
-persist-key
-persist-tun
-cipher AES-256-CBC
-auth SHA256
-verb 3
-<ca>
------BEGIN CERTIFICATE-----
-MIIE3DCCA8SgAwIBAgIQB/9vGv5XJ8+5N0y1G2N1fDANBgkqhkiG9w0BAQsFADCB
-jDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkFyaXpvbmExEzARBgNVBAcTClNjb3R0
-c2RhbGUxJTAjBgNVBAoTHFN0YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMzAx
-BgNVBAMTKFN0YXJmaWVsZCBTZXJ2ZXJDT00gQ2VydGlmaWNhdGUgQXV0aG9yaXR5
-MB4XDTE1MTAwNTE3MDYwMFoXDTI2MTAwNTE3MDYwMFowgYwxCzAJBgNVBAYTAlVT
-MRMwEQYDVQQIEwpBcml6b25hMRMwEQYDVQQHEypTY290dHNkYWxlMSUwIwYDVQQK
-ExxTdGFyZmllbGQgVGVjaGNOb2xvZ2llcywgSW5jLjEtMDAGA1UEAxMpU3RhcmZp
-ZWxkIFNlcnZlckNPTTBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwggEiMA0GCSqGSIb3
-DQEBAQUAA4IBDwAwggEKAoIBAQC78c1+U93Zl5d99E6Q5k41L+k0W9338J4/104Z
------END CERTIFICATE-----
-</ca>
-"""
+    servers = []
+    lines = html.strip().split('\n')
+    
+    for line in lines[1:]:
+        parts = line.split(',')
+        if len(parts) < 10:
+            continue
+            
+        try:
+            host = parts[1].strip()
+            country = parts[6].strip()
+            country_code = parts[7].strip()
+            ping = float(parts[4].strip())
+            speed = float(parts[5].strip())
+            config_base64 = parts[9].strip()
+            
+            config_content = base64.b64decode(config_base64).decode('utf-8')
+            
+            servers.append({
+                "host": host,
+                "country": country,
+                "country_code": country_code,
+                "ping_ms": ping,
+                "speed_mbps": speed,
+                "config_content": config_content
+            })
+        except Exception as e:
+            continue
+    
+    return servers
 
 def main():
-    print("Scraping password from VPNBook...")
-    password = scrape_password()
+    print("Fetching VPNGate servers...")
+    servers = get_vpngate_servers()
     
-    print("Testing server latencies...")
-    active_servers = []
+    if not servers:
+        print("No servers found!")
+        return
     
-    for item in ACTIVE_HOSTS:
-        host = item["host"]
-        # Test Port 443 (HTTPS - Bypass Firewalls)
-        latency = test_latency(host, 443)
-        port = 443
-        proto = "tcp"
-        
-        if latency is None:
-            # Fallback Port 80
-            latency = test_latency(host, 80)
-            port = 80
-            
-        if latency is not None:
-            print(f"Active: {host}:{port} ({latency}ms)")
-            active_servers.append({
-                "file_name": f"{host}_tcp{port}.ovpn",
-                "host": host,
-                "port": port,
-                "proto": proto,
-                "country": item["country"],
-                "latency_ms": latency,
-                "config_content": generate_ovpn_config(host, port, proto)
-            })
-        else:
-            print(f"Inactive: {host}")
-
-    # Sort by lowest latency (အမြန်ဆုံး ၅ ခု)
-    active_servers.sort(key=lambda x: x["latency_ms"])
-    top_5 = active_servers[:5]
-
+    print(f"Found {len(servers)} servers")
+    
+    # Sort by ping (lowest first)
+    servers.sort(key=lambda x: x["ping_ms"])
+    top_10 = servers[:10]
+    
     output_data = {
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
-        "username": "vpnbook",
-        "password": password,
-        "total_active_found": len(active_servers),
-        "servers": top_5
+        "username": "vpn",
+        "password": "vpn",
+        "total_active_found": len(servers),
+        "servers": [{
+            "file_name": f"{s['host']}.ovpn",
+            "host": s["host"],
+            "port": 443,
+            "proto": "tcp",
+            "country": s["country"],
+            "country_code": s["country_code"],
+            "latency_ms": s["ping_ms"],
+            "config_content": s["config_content"]
+        } for s in top_10]
     }
-
+    
     with open("servers.json", "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=2)
-
-    print(f"Successfully updated servers.json with {len(top_5)} active servers!")
+    
+    print(f"✅ Updated servers.json with {len(top_10)} servers!")
 
 if __name__ == "__main__":
     main()
