@@ -13,7 +13,7 @@ HEADERS = {
 def fetch_webpage(url):
     try:
         req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=15) as response:
             return response.read().decode('utf-8', errors='ignore')
     except Exception as e:
         print(f"Error fetching {url}: {e}")
@@ -21,26 +21,36 @@ def fetch_webpage(url):
 
 def get_vpngate_servers():
     """Fetch VPNGate public server list"""
+    print("🌐 Fetching VPNGate servers...")
     html = fetch_webpage("https://www.vpngate.net/api/iphone/")
     if not html:
+        print("❌ Failed to fetch server list")
         return []
     
     servers = []
     lines = html.strip().split('\n')
+    print(f"📊 Total lines: {len(lines)}")
     
-    for line in lines[1:]:
+    # Skip header line
+    for idx, line in enumerate(lines[1:]):
         parts = line.split(',')
         if len(parts) < 10:
             continue
             
         try:
+            # Format: 
+            # 0: #, 1: HostName, 2: IP, 3: Score, 4: Ping, 5: Speed, 
+            # 6: CountryLong, 7: CountryShort, 8: NumVpnSessions, 
+            # 9: OpenVPN_ConfigData_Base64, 10: ...
+            
             host = parts[1].strip()
             country = parts[6].strip()
             country_code = parts[7].strip()
-            ping = float(parts[4].strip())
-            speed = float(parts[5].strip())
+            ping = float(parts[4].strip())  # in ms
+            speed = float(parts[5].strip())  # in Mbps
             config_base64 = parts[9].strip()
             
+            # Decode OpenVPN config
             config_content = base64.b64decode(config_base64).decode('utf-8')
             
             servers.append({
@@ -52,23 +62,37 @@ def get_vpngate_servers():
                 "config_content": config_content
             })
         except Exception as e:
+            print(f"⚠️ Error parsing line {idx}: {e}")
             continue
     
+    print(f"✅ Found {len(servers)} servers")
     return servers
 
 def main():
-    print("Fetching VPNGate servers...")
+    print("🚀 Starting VPNGate server update...")
     servers = get_vpngate_servers()
     
     if not servers:
-        print("No servers found!")
+        print("❌ No servers found!")
+        # Try fallback URL
+        print("🔄 Trying fallback URL...")
+        html = fetch_webpage("https://www.vpngate.net/api/iphone/")
+        if html:
+            servers = get_vpngate_servers()
+    
+    if not servers:
+        print("❌ Still no servers, using cached data")
         return
     
-    print(f"Found {len(servers)} servers")
+    # Filter: only servers with good ping (< 200ms) and good speed (> 1 Mbps)
+    filtered = [s for s in servers if s["ping_ms"] < 200 and s["speed_mbps"] > 1]
+    print(f"📊 Filtered: {len(filtered)} servers (ping < 200ms, speed > 1 Mbps)")
     
-    # Sort by ping (lowest first)
-    servers.sort(key=lambda x: x["ping_ms"])
-    top_10 = servers[:10]
+    # Sort by ping (lowest first) then speed (highest first)
+    filtered.sort(key=lambda x: (x["ping_ms"], -x["speed_mbps"]))
+    top_10 = filtered[:10]
+    
+    print(f"📝 Selected top {len(top_10)} servers")
     
     output_data = {
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
@@ -82,7 +106,7 @@ def main():
             "proto": "tcp",
             "country": s["country"],
             "country_code": s["country_code"],
-            "latency_ms": s["ping_ms"],
+            "latency_ms": round(s["ping_ms"], 2),
             "config_content": s["config_content"]
         } for s in top_10]
     }
@@ -90,7 +114,7 @@ def main():
     with open("servers.json", "w", encoding="utf-8") as f:
         json.dump(output_data, f, indent=2)
     
-    print(f"✅ Updated servers.json with {len(top_10)} servers!")
+    print(f"✅ Successfully updated servers.json with {len(top_10)} VPNGate servers!")
 
 if __name__ == "__main__":
     main()
