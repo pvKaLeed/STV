@@ -1,5 +1,5 @@
 name: Update VPNBook Servers
-
+permissions: contents: write
 on:
   schedule:
     # ၁ နာရီတစ်ကြိမ် ပုံမှန် Run မည်
