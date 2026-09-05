@@ -2,9 +2,8 @@ name: Update VPNGate Servers
 
 on:
   schedule:
-    # ၃ နာရီတစ်ကြိမ် ပုံမှန် Run မည် (VPNGate က server အသစ်တွေ မကြာခဏထွက်လို့)
-    - cron: '0 */3 * * *'
-  workflow_dispatch: # Manual run ရအောင်လုပ်ပေးထားသည်
+    - cron: '0 */3 * * *'  # ၃ နာရီတစ်ကြိမ်
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,12 +21,8 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        pip install requests
-
-    - name: Run Fetch Script
-      run: python fetch_vpngate.py
+    - name: Run Fetch Script (VPNGate)
+      run: python fetch_vpngate.py   # ✅ ဒီဖိုင်ကို run ပါ
 
     - name: Commit and Push if updated
       run: |
